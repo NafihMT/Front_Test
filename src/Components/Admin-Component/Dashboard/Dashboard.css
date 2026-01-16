@@ -1,0 +1,112 @@
+.dashboard-container {
+    display: flex;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    min-height: 92vh;
+    background-color: #ffffff;
+    
+}
+.dashboard-main-container{
+    scale: 0.95;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 2rem 3rem;
+}
+
+.heading {
+    position: relative;
+    top: 15px;
+    left: 20px;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #1a202c;
+    margin-bottom: 2rem;
+}
+
+.sidebar {
+    width: 240px;
+    background-color: #111827;
+    padding: 1.5rem;
+    color: #d1d5db;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar__title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 2rem;
+}
+
+.nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-item {
+    display: block;
+    text-decoration: none;
+    color: #d1d5db;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.nav-item:hover {
+    background-color: #1f2937;
+    color: #ffffff;
+}
+
+.nav-item--active {
+    background-color: #3b82f6;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-card {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.stat-card__info-title {
+    margin: 0 0 0.5rem 0;
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.stat-card__info-value {
+    margin: 0;
+    font-size: 2.25rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.stat-card__icon-wrapper {
+    padding: 0.75rem;
+    border-radius: 8px;
+    background-color: #eff6ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-card__icon {
+    color: #3b82f6;
+}

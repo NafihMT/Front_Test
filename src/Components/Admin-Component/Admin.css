@@ -1,0 +1,17 @@
+body {
+  margin: 0;
+}
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0; 
+}
+.admin-main-container{
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    /* height: 100vh; */
+    height: 93vh;
+    gap: 0;
+}
+/* .admin-right-container{
+  scale: 0.9;
+} */
+

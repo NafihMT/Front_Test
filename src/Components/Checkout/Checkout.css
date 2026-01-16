@@ -1,0 +1,160 @@
+.checkout-container {
+    position: relative;
+    top: 80px;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+    background-color: #f9f9f9;
+    font-family: sans-serif;
+    gap: 40px;
+}
+
+.checkout-main {
+    flex: 2;
+    max-width: 600px;
+}
+
+.checkout-sidebar {
+    flex: 1;
+    max-width: 350px;
+    margin-top: 50px;
+}
+
+.checkout-logo {
+    font-size: 28px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+.checkout-secure-text {
+    text-align: center;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+/* Progress Bar */
+.progress-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 15px;
+}
+.step {
+    color: #999;
+    font-size: 14px;
+    position: relative;
+}
+.step.active {
+    color: #111;
+    font-weight: 600;
+}
+.step.active span {
+    background-color: #111;
+    color: white;
+}
+.step span {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    border-radius: 50%;
+    background-color: #ddd;
+    color: #999;
+    text-align: center;
+    margin-right: 8px;
+}
+
+/* Shipping Form */
+.shipping-form h2 {
+    font-size: 22px;
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    width: 100%;
+}
+.form-group label {
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: #333;
+}
+.form-group label span {
+    color: #888;
+    font-weight: 400;
+}
+.form-group input {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.continue-btn {
+    width: 100%;
+    padding: 15px;
+    background-color: #111;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+.continue-btn:hover {
+    background-color: #333;
+}
+
+
+/* Order Summary Sidebar */
+.order-summary {
+    background-color: #fff;
+    padding: 25px;
+    border: 1px solid #e1e1e1;
+    border-radius: 5px;
+}
+.order-summary h3 {
+    margin-top: 0;
+    font-size: 20px;
+    display: inline-block;
+}
+.edit-cart-btn {
+    float: right;
+    background: none;
+    border: none;
+    color: #555;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 14px;
+}
+.summary-line {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    color: #444;
+}
+.summary-line.total {
+    font-weight: bold;
+    font-size: 18px;
+    color: #111;
+}
+.order-summary hr {
+    border: 0;
+    border-top: 1px solid #e1e1e1;
+    margin: 20px 0;
+}
+
+/* Empty Checkout styles */
+.empty-checkout {
+    text-align: center;
+    padding: 100px 20px;
+}

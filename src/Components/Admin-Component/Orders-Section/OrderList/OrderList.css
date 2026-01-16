@@ -1,0 +1,83 @@
+.order-table {
+    margin-top: 2rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.order-table-header,
+.order-table-row {
+    display: grid;
+    grid-template-columns: 1.5fr 1.5fr 3fr 3fr 1.5fr 1.5fr;
+    align-items: start;
+    gap: 1.5rem;
+    padding: 1rem 1.5rem;
+}
+
+.order-table-header {
+    background-color: #f9fafb;
+    color: #6b7280;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.order-table-row {
+    border-bottom: 1px solid #e5e7eb;
+    color: #374151;
+}
+
+.order-table-row:last-child {
+    border-bottom: none;
+}
+
+.order-id {
+    font-weight: 500;
+    color: #111827;
+}
+
+.order-address p {
+    margin: 0.25rem 0 0 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.order-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+}
+
+/* Status Badge Styling (can be reused from UserList.css) */
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.status--delivered {
+    background-color: #dcfce7;
+    /* Light Green */
+    color: #166534;
+    /* Dark Green */
+}
+
+.status--processing {
+    background-color: #fef9c3;
+    /* Light Yellow */
+    color: #854d0e;
+    /* Dark Yellow */
+}
+
+.status--cancelled {
+    background-color: #fee2e2;
+    /* Light Red */
+    color: #991b1b;
+    /* Dark Red */
+}
