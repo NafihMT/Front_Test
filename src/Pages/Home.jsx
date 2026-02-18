@@ -1,11 +1,11 @@
-import React, { useContext } from 'react'; 
+import React, { useContext } from 'react';
 import '../Css/Home.css';
 import Navbar from '../Components/NavBar/Navbar';
 import { useNavigate } from 'react-router-dom';
-import { CartContext } from '../Components/CartContext/CartContext'; 
+import { CartContext } from '../Components/CartContext/CartContext';
 
 function Home() {
-  const { user } = useContext(CartContext); 
+  const { user } = useContext(CartContext);
   const navigate = useNavigate();
 
   return (
@@ -22,15 +22,17 @@ function Home() {
           minHeight: "80vh"
         }}>
           <div className="welcome-message" style={{ marginBottom: "20px" }}>
-            {user ? (
-              <h1 style={{ fontWeight: 700, fontSize: "2.2rem", letterSpacing: "2px" }}>
-                Hi {user.f_name.toUpperCase()}
-              </h1>
-            ) : (
-              <h1 style={{ fontWeight: 700, fontSize: "2.2rem", letterSpacing: "2px" }}>
-                WELCOME GUEST
-              </h1>
-            )}
+            <div className="welcome-message" style={{ marginBottom: "20px" }}>
+              {user ? (
+                <h1 style={{ fontWeight: 700, fontSize: "2.2rem", letterSpacing: "2px" }}>
+                  HI {user.username?.toUpperCase()}
+                </h1>
+              ) : (
+                <h1 style={{ fontWeight: 700, fontSize: "2.2rem", letterSpacing: "2px" }}>
+                  WELCOME GUEST
+                </h1>
+              )}
+            </div>
           </div>
           <div className="helmet-hero" style={{
             display: "flex",

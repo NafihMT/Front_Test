@@ -14,31 +14,25 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
             const checkUserStatus = async () => {
                 try {
                     const token = localStorage.getItem('token');
-                    
-                    // Connected to Port 5000 with proper JWT Headers
                     const response = await axios.get(`http://localhost:5000/api/user/profile`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
 
-                    // ApiResponse structure: response.data.data
                     const freshUserData = response.data.data;
 
                     if (freshUserData && freshUserData.status === 'Inactive') {
-                        toast.warn("Your account has been deactivated by admin.");
+                        toast.warn("Your account has been deactivated.");
                         handleLogout();
                     }
                 } catch (error) {
-                    // Handle 401 Unauthorized or 404 Not Found by logging out
-                    if (error.response?.status === 401 || error.response?.status === 404) {
+                    if (error.response?.status === 401) {
                         handleLogout();
                     }
-                    console.error("Status check failed:", error);
                 }
             };
-
             checkUserStatus();
         }
-    }, [location, user, setUser, navigate]);
+    }, [location, user]);
 
     const handleLogout = () => {
         localStorage.removeItem('user');
@@ -51,14 +45,13 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
-    const userRole = user.role;
+    // Convert everything to lowercase for a safe comparison
+    const userRole = user.role?.toLowerCase();
+    const rolesAllowed = allowedRoles.map(r => r.toLowerCase());
 
-    // Support for both string role name and Enum integer (Admin = 1)
-    const isAdmin = userRole === 'Admin' || userRole === 1;
-
-    if (!allowedRoles.includes(userRole)) {
-        const redirectTo = isAdmin ? '/admin' : '/';
-        return <Navigate to={redirectTo} replace />;
+    if (!rolesAllowed.includes(userRole)) {
+        // Redirect based on actual role if they try to access a forbidden page
+        return <Navigate to={userRole === 'admin' ? '/admin' : '/'} replace />;
     }
 
     return children;

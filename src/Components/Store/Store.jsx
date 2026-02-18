@@ -9,67 +9,55 @@ import { ShoppingCart } from 'lucide-react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const API_BASE_URL = "http://localhost:5298/api"; 
-
-function getCategoryButtons(products) {
-    const categories = new Set();
-    products.forEach(p => {
-        if (p.categoryName) {
-            const key = p.categoryName.trim();
-            categories.add(key.replace(/\s+$/, ""));
-        }
-    });
-    return Array.from(categories);
-}
+const API_BASE_URL = "http://localhost:5000/api";
 
 function Store() {
-    const { cart, setCart, user } = useContext(CartContext);
+    const { cart, setCart, user, setWishlist, wishlist } = useContext(CartContext);
     const [products, setProducts] = useState([]);
-    const [wishlistItems, setWishlistItems] = useState([]);
     const [sortOption, setSortOption] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("All");
-    const [categoryButtons, setCategoryButtons] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Fetch Products from .NET Web API
-    useEffect(() => {
-        axios.get(`${API_BASE_URL}/Product`) //
-            .then(res => {
-                // Accessing data from the structured ApiResponse
-                const productList = res.data.data; 
-                setProducts(productList);
-                setCategoryButtons(getCategoryButtons(productList));
-            })
-            .catch(err => console.error("Error fetching products:", err));
-    }, []);
+    // Helper for Authorization Headers
+    const getAuthHeaders = () => {
+        const token = localStorage.getItem("token");
+        return { headers: { Authorization: `Bearer ${token}` } };
+    };
 
+    // 1. Fetch Products (Updated to handle Search and Category from URL)
     useEffect(() => {
         const params = new URLSearchParams(location.search);
-        const cat = params.get("category");
-        const search = params.get("search") || "";
-        setSearchTerm(search);
+        const categoryName = params.get("category");
+        const searchParam = params.get("search");
 
-        if (cat && (cat === "All" || categoryButtons.includes(cat))) {
-            setSelectedCategory(cat);
-        } else {
-            setSelectedCategory("All");
+        // Sync local search term state with URL for the getSortedProducts function
+        setSearchTerm(searchParam || "");
+
+        let fetchUrl = `${API_BASE_URL}/product/GetAll-Product`;
+
+        // If a specific category is selected, use the category endpoint
+        if (categoryName && categoryName !== "All") {
+            fetchUrl = `${API_BASE_URL}/product/category/${encodeURIComponent(categoryName)}`;
         }
-    }, [location.search, categoryButtons]);
 
-    // Fetch Wishlist from .NET Web API
+        axios.get(fetchUrl)
+            .then(res => {
+                // Ensure we handle both direct arrays and ApiResponse wrapped data
+                const data = res.data.data || res.data;
+                setProducts(data);
+            })
+            .catch(err => console.error("Error fetching products:", err));
+    }, [location.search]); // Re-runs whenever the URL (category or search) changes
+
+    // 2. Fetch Wishlist
     useEffect(() => {
         if (user) {
-            axios.get(`${API_BASE_URL}/Wishlist`) //
-                .then(res => setWishlistItems(res.data.data))
+            axios.get(`${API_BASE_URL}/wishlist`, getAuthHeaders())
+                .then(res => setWishlist(res.data.data || []))
                 .catch(err => console.error("Error fetching wishlist:", err));
         }
-    }, [user]);
-
-    const handleCategorySelect = (category) => {
-        navigate(`/store?category=${encodeURIComponent(category)}`);
-    };
+    }, [user, setWishlist]);
 
     const handleToggleWishlist = async (product) => {
         if (!user) {
@@ -77,23 +65,21 @@ function Store() {
             return;
         }
 
-        const existingItem = wishlistItems.find(item => item.productId === product.id);
+        // Use context state 'wishlist' to check for existing productId
+        const existingItem = wishlist.find(item => item.productId === product.id);
+
         try {
             if (existingItem) {
-                // Remove using the ID from the backend WishlistItemDto
-                await axios.delete(`${API_BASE_URL}/Wishlist/remove/${existingItem.id}`); 
-                setWishlistItems(prev => prev.filter(item => item.id !== existingItem.id));
+                await axios.delete(`${API_BASE_URL}/wishlist/remove/${existingItem.id}`, getAuthHeaders());
+                setWishlist(prev => prev.filter(item => item.id !== existingItem.id));
                 toast.info("Removed from wishlist");
             } else {
-                // Add using AddToWishlistDto structure
-                const response = await axios.post(`${API_BASE_URL}/Wishlist/add`, { 
-                    productId: product.id 
-                });
-                setWishlistItems(prev => [...prev, response.data.data]);
+                const response = await axios.post(`${API_BASE_URL}/wishlist/${product.id}`, {}, getAuthHeaders());
+                // Sync with backend response data
+                setWishlist(prev => [...prev, response.data.data]);
                 toast.success("Added to wishlist");
             }
         } catch (error) {
-            console.error("Error updating wishlist:", error);
             toast.error("Failed to update wishlist");
         }
     };
@@ -104,22 +90,9 @@ function Store() {
             return;
         }
         try {
-            // Add using AddToCartDto structure
-            const response = await axios.post(`${API_BASE_URL}/Cart/add`, { 
-                productId: product.id, 
-                quantity: 1 
-            });
-            
-            // Your backend handles checking for existing items in the CartService
-            setCart(prev => {
-                const existing = prev.find(item => item.productId === product.id);
-                if (existing) {
-                    return prev.map(item => 
-                        item.productId === product.id ? response.data.data : item
-                    );
-                }
-                return [...prev, response.data.data];
-            });
+            await axios.post(`${API_BASE_URL}/cart/${product.id}`, { quantity: 1 }, getAuthHeaders());
+            const res = await axios.get(`${API_BASE_URL}/cart`, getAuthHeaders());
+            setCart(res.data.data);
             toast.success(`${product.name} added to cart!`);
         } catch (error) {
             toast.error(error.response?.data?.message || "Error adding to cart");
@@ -128,57 +101,31 @@ function Store() {
 
     const getSortedProducts = () => {
         let filtered = [...products];
-        if (selectedCategory !== "All") {
-            filtered = filtered.filter(
-                p => p.categoryName && p.categoryName.trim() === selectedCategory
-            );
-        }
+
+        // Search filtering (fallback for local filtering if needed)
         if (searchTerm) {
             const searchLower = searchTerm.toLowerCase();
-            filtered = filtered.filter(
-                p =>
-                    p.name.toLowerCase().includes(searchLower) ||
-                    (p.description && p.description.toLowerCase().includes(searchLower))
-            );
+            filtered = filtered.filter(p => p.name.toLowerCase().includes(searchLower));
         }
-        if (sortOption === "priceLowHigh") {
-            filtered.sort((a, b) => a.price - b.price);
-        } else if (sortOption === "priceHighLow") {
-            filtered.sort((a, b) => b.price - a.price);
-        }
+
+        // Sorting Logic
+        if (sortOption === "priceLowHigh") filtered.sort((a, b) => a.price - b.price);
+        else if (sortOption === "priceHighLow") filtered.sort((a, b) => b.price - a.price);
+
         return filtered;
     };
 
     return (
-        <div>
-            <div className="store-container">
-                <NavBar
-                    variant="store"
-                    cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)}
-                    wishlistCount={wishlistItems.length}
-                />
-                <h1 className="store-title" style={{ fontFamily: "fantasy", color: "rgba(67, 64, 64, 1)" }}>Master Head Drops</h1>
-                <div style={{ marginBottom: 20, display: "flex", gap: 10, justifyContent: "center" }}>
-                    <div className="btn-category">
-                        <button className="all-cat" onClick={() => handleCategorySelect("All")}>All </button>
-                        {categoryButtons.map(cat => (
-                            <button key={cat} className="all-cat" onClick={() => handleCategorySelect(cat)}>{cat}</button>
-                        ))}
-                    </div>
+        <div className="store-container">
+            <NavBar />
+            <div style={{ paddingTop: '100px' }}> {/* Space for fixed Navbar */}
+                <h1 className="store-title">Master Head Drops</h1>
+
+                <div style={{ textAlign: 'center', marginBottom: '20px' }}>
                     <select
                         value={sortOption}
                         onChange={e => setSortOption(e.target.value)}
                         className="sort-select"
-                        style={{
-                            position:"relative",
-                            left:"20%",
-                            padding: "10px 18px",
-                            borderRadius: "6px",
-                            border: "1px solid #bbb",
-                            fontSize: "16px",
-                            minWidth: "180px",
-                            background: "#fff"
-                        }}
                     >
                         <option value="">Sort Products</option>
                         <option value="priceLowHigh">Price: Low to High</option>
@@ -187,29 +134,30 @@ function Store() {
                 </div>
 
                 <div className="helmets-grid">
-                    {getSortedProducts().map(product => (
-                        <div className="helmet-card" key={product.id} >
-                            <div
-                                className="wishlist-icon"
-                                onClick={() => handleToggleWishlist(product)}
-                            >
-                                <FaHeart color={wishlistItems.some(item => item.productId === product.id) ? "red" : "#ddd"} />
+                    {getSortedProducts().length > 0 ? (
+                        getSortedProducts().map(product => (
+                            <div className="helmet-card" key={product.id}>
+                                <div className="wishlist-icon" onClick={() => handleToggleWishlist(product)}>
+                                    <FaHeart color={wishlist.some(item => item.productId === product.id) ? "red" : "#ddd"} />
+                                </div>
+                                <img
+                                    src={product.imageUrl || product.image}
+                                    alt={product.name}
+                                    className="helmet-img"
+                                    onClick={() => navigate(`/products/${product.id}`)}
+                                />
+                                <h2 onClick={() => navigate(`/products/${product.id}`)} style={{ cursor: 'pointer' }}>
+                                    {product.name}
+                                </h2>
+                                <p>₹{product.price}</p>
+                                <button className="add-to-cart-button" onClick={() => addToCart(product)}>
+                                    <ShoppingCart size={20} /> ADD TO CART
+                                </button>
                             </div>
-                            <img src={product.imageUrl} alt={product.name} className="helmet-img" onClick={() => navigate(`/products/${product.id}`)}/>
-                            <h2 onClick={() => navigate(`/products/${product.id}`)} style={{cursor:"pointer"}}>{product.name}</h2>
-                            <p>₹{product.price}</p>
-                            <p className="helmet-category">{product.categoryName}</p>
-                            <button className="add-to-cart-button" onClick={() => addToCart(product)}>
-                                <ShoppingCart size={20} /> ADD TO CART
-                            </button>
-                            <button
-                                className="details-btn"
-                                onClick={() => navigate(`/products/${product.id}`)}
-                            >
-                                Details
-                            </button>
-                        </div>
-                    ))}
+                        ))
+                    ) : (
+                        <p style={{ textAlign: 'center', gridColumn: '1/-1' }}>No products found matching your criteria.</p>
+                    )}
                 </div>
             </div>
         </div>

@@ -5,72 +5,83 @@ import { CartContext } from '../CartContext/CartContext';
 import NavBar from '../NavBar/Navbar';
 import './Wishlist.css';
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 function Wishlist() {
     const [wishlistItems, setWishlistItems] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const { user, setCart, userLoaded } = useContext(CartContext);
+    const { user, userLoaded, setCart, setWishlist } = useContext(CartContext);
     const navigate = useNavigate();
+    const token = localStorage.getItem("token");
+
+    const API_URL = "http://localhost:5000/api";
+    const headers = { Authorization: `Bearer ${token}` };
 
     useEffect(() => {
         if (!userLoaded) return;
         if (!user) {
-            toast.error("Please log in to see your wishlist.");
             navigate('/login');
             return;
         }
 
-        axios.get(`http://localhost:5298/api/Wishlist?userId=${user.id}`)
-            .then(response => {
-                setWishlistItems(response.data);
+        axios.get(`${API_URL}/wishlist`, { headers })
+            .then(res => {
+                setWishlistItems(res.data.data || []);
                 setIsLoading(false);
             })
-            .catch(error => {
-                console.error("Error fetching wishlist:", error);
+            .catch(() => {
+                toast.error("Error loading wishlist");
                 setIsLoading(false);
             });
-    }, [user, navigate]);
+    }, [user, userLoaded, navigate]);
 
-    // Replace handleRemove
-    const handleRemoveFromWishlist = async (wishlistItemId) => {
+    const handleRemoveFromWishlist = async (id, silent = false) => {
         try {
-            // Updated route to match .NET Controller
-            await axios.delete(`http://localhost:5298/api/Wishlist/remove/${wishlistItemId}`);
-            setWishlistItems(prev => prev.filter(item => item.id !== wishlistItemId));
-        } catch (error) {
+            await axios.delete(`${API_URL}/wishlist/remove/${id}`, { headers });
+            const updatedList = wishlistItems.filter(item => item.id !== id);
+            setWishlistItems(updatedList);
+            setWishlist(updatedList); 
+            
+            // Only show toast if silent is false
+            if (!silent) {
+                toast.info("Removed from wishlist");
+            }
+        } catch {
             toast.error("Failed to remove item");
         }
     };
 
-    // Replace handleAddToCart
     const handleAddToCart = async (item) => {
         try {
-            // api/Cart/add usually takes { productId, quantity }
-            await axios.post("http://localhost:5298/api/Cart/add", {
-                productId: item.productId,
-                quantity: 1
-            });
-            await handleRemoveFromWishlist(item.id);
-            toast.success("Moved to cart!");
+            const res = await axios.post(
+                `${API_URL}/cart/${item.productId}`, 
+                { quantity: 1 }, 
+                { headers }
+            );
+            
+            if (res.data.data) {
+                setCart(prev => [...prev, res.data.data]);
+            }
+            
+            // 2. Call remove with 'true' to suppress the "Removed" toast
+            await handleRemoveFromWishlist(item.id, true);
+            
+            toast.success(`${item.product?.name} moved to cart!`);
         } catch (error) {
-            toast.error("Error moving item");
+            toast.error("Error moving item to cart");
         }
     };
 
-    if (isLoading) {
-        return <div className="wishlist-container"><p>Loading your wishlist...</p></div>;
-    }
+    if (isLoading) return <div className="wishlist-container">Loading...</div>;
 
     return (
         <div className='wishlist-main-container'>
             <NavBar />
-            <div className="wishlist-container">
+            <div className="wishlist-container" style={{ paddingTop: '100px' }}>
                 <h1 className="wishlist-title">My Wishlist</h1>
 
                 {wishlistItems.length === 0 ? (
                     <div className="empty-wishlist">
-                        <p>Your wishlist is currently empty.</p>
+                        <p>Your wishlist is empty.</p>
                         <button onClick={() => navigate('/store')} className="continue-shopping-btn">
                             Continue Shopping
                         </button>
@@ -87,11 +98,15 @@ function Wishlist() {
                                 <div className="wishlist-item" key={item.id}>
                                     <div className="item-product">
                                         <button onClick={() => handleRemoveFromWishlist(item.id)} className="remove-btn">×</button>
-                                        <img src={item.image} alt={item.name} className="product-image" />
-                                        <span>{item.name}</span>
+                                        <img 
+                                            src={item.product?.image || item.product?.imageUrl} 
+                                            alt={item.product?.name} 
+                                            className="product-image" 
+                                        />
+                                        <span>{item.product?.name}</span>
                                     </div>
                                     <div className="item-price">
-                                        <span>₹{item.price.toFixed(2)}</span>
+                                        <span>₹{(item.product?.price || 0).toFixed(2)}</span>
                                     </div>
                                     <div className="item-actions">
                                         <button onClick={() => handleAddToCart(item)} className="add-to-cart-btn">

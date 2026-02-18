@@ -45,8 +45,7 @@ function Checkout() {
 
     const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
     const shippingHandling = subtotal > 0 ? 49.99 : 0;
-    const tax = subtotal * 0.05;
-    const orderTotal = subtotal + shippingHandling + tax;
+    const orderTotal = subtotal + shippingHandling ;
 
     return (
         <>
@@ -85,7 +84,6 @@ function Checkout() {
                             </div>
                             <div className="summary-line"><span>Merchandise:</span><span>₹{subtotal.toFixed(2)}</span></div>
                             <div className="summary-line"><span>Shipping & Handling:</span><span>₹{shippingHandling.toFixed(2)}</span></div>
-                            <div className="summary-line"><span>Tax:</span><span>₹{tax.toFixed(2)}</span></div>
                             <hr />
                             <div className="summary-line total"><span>Order Total:</span><span>₹{orderTotal.toFixed(2)}</span></div>
                         </div>

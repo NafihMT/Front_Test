@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 function Login() {
 
     const API_URL = "http://localhost:5000/api";
-    
+
     const { setUser } = useContext(CartContext);
     const navigate = useNavigate();
     const [credentials, setCredentials] = useState({ usr_name: "", password: "" });
