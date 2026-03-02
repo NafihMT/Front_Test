@@ -4,6 +4,7 @@ import { CartContext } from '../CartContext/CartContext';
 import './Orders.css';
 import NavBar from '../NavBar/Navbar';
 
+const API_BASE_URL = "http://localhost:5000/api";
 function Orders() {
     const [orders, setOrders] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -12,16 +13,32 @@ function Orders() {
     useEffect(() => {
         if (!user) return;
 
-        axios.get(`http://localhost:5298/api/Order/my-orders`)
-            .then(response => {
-                const orderData = response.data.data;
-                setOrders(orderData);
-            })
-            .catch(error => console.error("Error fetching orders:", error))
-            .finally(() => setIsLoading(false));
+        const fetchOrders = async () => {
+            try {
+                const token = localStorage.getItem("token");
+
+                const response = await axios.get(
+                    `${API_BASE_URL}/order/user`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                );
+                console.log(response.data);
+                setOrders(response.data.data || []);
+
+            } catch (error) {
+                console.error("Error fetching orders:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchOrders();
     }, [user]);
 
- 
+
 
     if (isLoading) {
         return <div className="history-container loading">Loading order history...</div>;
@@ -39,9 +56,9 @@ function Orders() {
                         <div className="order-card" key={order.id}>
                             <div className="order-header">
                                 <div className="order-info">
-                                    <p className="order-number">{order.orderNumber}</p>
+                                    <p className="order-number">Order #{order.id}</p>
                                     <p className="order-date">
-                                        {order.orderedOn ? new Date(order.orderedOn).toLocaleString() : ""}
+                                        {new Date(order.createdAt).toLocaleString()}
                                     </p>
                                 </div>
                                 <div className="order-meta">
@@ -56,13 +73,13 @@ function Orders() {
                                     <React.Fragment key={item.productId}>
                                         <div className="detail-item">{item.name}</div>
                                         <div className="detail-item">{item.quantity}</div>
-                                        <div className="detail-item">₹{item.price.toFixed(2)}</div>
+                                        <div className="detail-item">₹{item.unitPrice ? item.unitPrice.toFixed(2) : "0.00"}</div>
                                     </React.Fragment>
                                 ))}
                             </div>
                             <div className="order-total">
                                 <span>GRAND TOTAL</span>
-                                <p>₹{order.totalAmount.toFixed(2)}</p>
+                                <p>₹{order.totalAmount?.toFixed(2)}</p>
                             </div>
                         </div>
                     ))}

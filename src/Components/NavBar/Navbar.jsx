@@ -16,7 +16,7 @@ function Navbar() {
 
     const { cart, wishlist, user, setUser, setCart, setWishlist } = useContext(CartContext);
 
-    const cartCount = cart.length;
+    const cartCount = cart?.length || 0;
     const wishlistCount = wishlist.length;
     const navigate = useNavigate();
 

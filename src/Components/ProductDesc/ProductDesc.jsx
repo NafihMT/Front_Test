@@ -34,6 +34,10 @@ function ProductDesc() {
             });
     }, [id]);
 
+    useEffect(() => {
+        console.log(product);
+    }, [product]);
+
     if (!product) {
         return <div className="loading-container">Loading helmet details...</div>;
     }
@@ -108,7 +112,7 @@ function ProductDesc() {
             <div className="main-product-card">
                 <div className="product-card-left">
                     <img
-                        src={product.imageUrl || product.image}
+                        src={product.imageUrl || product.Image}
                         alt={product.name}
                         className="product-image"
                     />

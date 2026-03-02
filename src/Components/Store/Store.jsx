@@ -141,7 +141,7 @@ function Store() {
                                     <FaHeart color={wishlist.some(item => item.productId === product.id) ? "red" : "#ddd"} />
                                 </div>
                                 <img
-                                    src={product.imageUrl || product.image}
+                                    src={product.imageUrl || product.Image}
                                     alt={product.name}
                                     className="helmet-img"
                                     onClick={() => navigate(`/products/${product.id}`)}

@@ -6,7 +6,7 @@ const UserCountCard = () => {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    fetch("http://localhost:5298/api/User")
+    fetch("http://localhost:5000/api/Users")
       .then((res) => res.json())
       .then((data) => setCount(data.data.length)) 
       .catch((err) => console.error("Error fetching users:", err));

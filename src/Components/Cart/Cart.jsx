@@ -21,7 +21,11 @@ function Cart() {
     useEffect(() => {
         if (user) {
             axios.get(API_URL, getAuthHeaders())
-                .then(res => setCart(res.data.data || []))
+                .then(res => {
+                    const data = res.data.data || res.data;
+                    setCart(data);
+                })
+
                 .catch(() => toast.error("Failed to load cart items."));
         }
     }, [user]);
