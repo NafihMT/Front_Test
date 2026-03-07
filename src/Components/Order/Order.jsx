@@ -4,6 +4,7 @@ import { Check } from 'lucide-react';
 import NavBar from '../NavBar/Navbar'; 
 import './Order.css';   
 
+
 function Order() {
     const navigate = useNavigate();
 

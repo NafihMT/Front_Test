@@ -3,7 +3,7 @@ import { User } from "lucide-react";
 import './Admin.css';
 import SideBar from './SideBar/SideBar'
 import { useNavigate } from 'react-router-dom';
-import Dashboard from './DashBoard/Dashboard';
+import Dashboard from './Dashboard/Dashboard';
 import Products from './Products/Products'
 import Users from './Users/Users'
 import OrderManage from '../Admin-Component/Orders-Section/OrderManage';

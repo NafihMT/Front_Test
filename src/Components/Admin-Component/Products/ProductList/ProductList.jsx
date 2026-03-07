@@ -1,50 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import ProductCard from '../ProductCard/ProductCard';
-import '../ProductCard/ProductCard.css';
 import ProductPagination from '../ProductPagination/ProductPagination';
-import '../ProductPagination/ProductPagination.css'
 import EditProductModal from '../EditProduct/EditProduct';
-import '../EditProduct/EditProduct.css'
 import { toast } from 'react-toastify';
+import './ProductList.css';
 
-function ProductList({ searchTerm = "" }) {
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+function ProductList({
+    searchTerm = "",
+    products,
+    setProducts,
+    loading,
+    error
+}) {
 
     const [currentPage, setCurrentPage] = useState(1);
     const [productsPerPage] = useState(3);
-
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
 
     useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                const response = await fetch('http://localhost:3001/products');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                setProducts(data);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchProducts();
-    }, []);
-
-    useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm]);
+    }, [searchTerm, products]);
 
-    const filteredProducts = products.filter(product =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredProducts = (products ?? []).filter(product =>
+        product.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    // --- Pagination Logic ---
+
     const indexOfLastProduct = currentPage * productsPerPage;
     const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
     const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
@@ -59,60 +40,104 @@ function ProductList({ searchTerm = "" }) {
 
     const handleUpdateProduct = async (updatedProduct) => {
         try {
-            const response = await fetch(`http://localhost:3001/products/${updatedProduct.id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updatedProduct),
-            });
-            if (!response.ok) throw new Error('Failed to update product.');
 
-            setProducts(products.map(p => (p.id === updatedProduct.id ? updatedProduct : p)));
+            const token = localStorage.getItem("token");
+
+            const response = await fetch(
+                `http://localhost:5000/api/product/${updatedProduct.id}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(updatedProduct),
+                }
+            );
+
+            if (!response.ok)
+                throw new Error('Failed to update product.');
+
             toast.success('Product updated successfully!');
+
+            // 🔥 IMPORTANT: re-fetch full product list
+            const refresh = await fetch("http://localhost:5000/api/product/GetAll-Product");
+            const freshData = await refresh.json();
+
+            setProducts(freshData);
+
             setIsModalOpen(false);
             setEditingProduct(null);
+
         } catch (err) {
-            toast.error(err.message);
+            console.error(err);
+            toast.error("Update failed");
         }
     };
-
 
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this product?')) {
-            try {
-                const response = await fetch(`http://localhost:3001/products/${id}`, {
-                    method: 'DELETE',
-                });
-                if (!response.ok) throw new Error('Failed to delete.');
+        if (!window.confirm('Are you sure you want to delete this product?'))
+            return;
 
-                setProducts(products.filter(p => p.id !== id));
-                toast.success('Product deleted successfully!');
-            } catch (err) {
-                toast.error(err.message);
-            }
+        try {
+
+            const token = localStorage.getItem("token");
+
+            const response = await fetch(
+                `http://localhost:5000/api/product/${id}`,
+                {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (!response.ok)
+                throw new Error('Failed to delete.');
+
+            // Remove from UI immediately
+            setProducts(prev => prev.filter(p => p.id !== id));
+
+            toast.success('Product deleted successfully!');
+
+        } catch (err) {
+            console.error(err);
+            toast.error("Unauthorized or server error");
         }
     };
-
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
 
     return (
         <div className="product-list-container">
-            {currentProducts.map(product => (
-                <ProductCard
-                    key={product.id}
-                    product={product}
-                    onEdit={() => handleEdit(product.id)}
-                    onDelete={() => handleDelete(product.id)}
-                />
-            ))}
 
-            <ProductPagination
-                productsPerPage={productsPerPage}
-                totalProducts={filteredProducts.length}
-                paginate={paginate}
-                currentPage={currentPage}
-            />
+            {filteredProducts.length === 0 ? (
+                <div className="no-results">
+                    {searchTerm
+                        ? `No products found for "${searchTerm}"`
+                        : "No products available."}
+                </div>
+            ) : (
+                <>
+                    {currentProducts.map(product => (
+                        <ProductCard
+                            key={product.id}
+                            product={product}
+                            onEdit={() => handleEdit(product.id)}
+                            onDelete={() => handleDelete(product.id)}
+                        />
+                    ))}
+
+                    <ProductPagination
+                        productsPerPage={productsPerPage}
+                        totalProducts={filteredProducts.length}
+                        paginate={paginate}
+                        currentPage={currentPage}
+                    />
+                </>
+            )}
 
             {isModalOpen && (
                 <EditProductModal
@@ -121,6 +146,7 @@ function ProductList({ searchTerm = "" }) {
                     onClose={() => setIsModalOpen(false)}
                 />
             )}
+
         </div>
     );
 }

@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../api/api";
 
 export const CartContext = createContext();
 
@@ -44,7 +44,7 @@ export function CartProvider({ children }) {
     };
 
     // Fetch Cart - Endpoint matches your CartController route
-    axios.get(`${API_BASE}/cart`, config)
+    api.get(`${API_BASE}/cart`, config)
       .then(res => {
         // res.data.data matches your ApiResponse wrapper structure
         setCart(res.data.data || []);
@@ -55,7 +55,7 @@ export function CartProvider({ children }) {
       });
 
     // Fetch Wishlist - Endpoint matches your WishlistController route
-    axios.get(`${API_BASE}/wishlist`, config)
+    api.get(`${API_BASE}/wishlist`, config)
       .then(res => {
         setWishlist(res.data.data || []);
       })

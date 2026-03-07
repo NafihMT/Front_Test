@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CartContext } from '../CartContext/CartContext';
-import axios from 'axios';
+import api from '../../api/api';
 import './Cart.css';
 import NavBar from '../NavBar/Navbar';
 import { toast } from 'react-toastify';
@@ -20,8 +20,12 @@ function Cart() {
 
     useEffect(() => {
         if (user) {
-            axios.get(API_URL, getAuthHeaders())
-                .then(res => setCart(res.data.data || []))
+            api.get(API_URL, getAuthHeaders())
+                .then(res => {
+                    const data = res.data.data || res.data;
+                    setCart(data);
+                })
+
                 .catch(() => toast.error("Failed to load cart items."));
         }
     }, [user]);
@@ -35,7 +39,7 @@ function Cart() {
         ));
 
         try {
-            const res = await axios.put(`${API_URL}/update/${item.id}`,
+            const res = await api.put(`${API_URL}/update/${item.id}`,
                 { quantity: newQuantity },
                 getAuthHeaders()
             );
@@ -51,7 +55,7 @@ function Cart() {
 
     const handleRemoveItem = async (itemId) => {
         try {
-            await axios.delete(`${API_URL}/remove/${itemId}`, getAuthHeaders());
+            await api.delete(`${API_URL}/remove/${itemId}`, getAuthHeaders());
             setCart(prev => prev.filter(item => item.id !== itemId));
             toast.success("Item removed");
         } catch (error) {

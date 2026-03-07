@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { CartContext } from '../CartContext/CartContext';
-import axios from 'axios';
+import api from '../../api/api';
 import { toast } from 'react-toastify';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -14,7 +14,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
             const checkUserStatus = async () => {
                 try {
                     const token = localStorage.getItem('token');
-                    const response = await axios.get(`http://localhost:5000/api/user/profile`, {
+                    const response = await api.get(`http://localhost:5000/api/user/profile`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
 

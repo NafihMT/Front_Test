@@ -1,11 +1,12 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../api/api';
 import { toast } from 'react-toastify';
 import { CartContext } from '../CartContext/CartContext';
 import './Checkout.css';
 import NavBar from '../NavBar/Navbar';
 
+const API_BASE_URL = "http://localhost:5000/api";
 function Checkout() {
     const { cart, setCart, user } = useContext(CartContext);
     const navigate = useNavigate();
@@ -23,7 +24,10 @@ function Checkout() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsProcessing(true);
+
         try {
+            const token = localStorage.getItem("token");
+
             const payload = {
                 items: cart.map(item => ({
                     productId: item.productId,
@@ -31,12 +35,22 @@ function Checkout() {
                 }))
             };
 
-            await axios.post("http://localhost:5298/api/Order/place", payload);
+            await api.post(
+                `${API_BASE_URL}/order`,
+                payload,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
 
-            setCart([]); 
+            setCart([]);
             toast.success("Order placed successfully!");
             navigate('/order');
+
         } catch (error) {
+            console.error(error.response?.data);
             toast.error(error.response?.data?.message || "Failed to place order.");
         } finally {
             setIsProcessing(false);
@@ -45,7 +59,7 @@ function Checkout() {
 
     const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
     const shippingHandling = subtotal > 0 ? 49.99 : 0;
-    const orderTotal = subtotal + shippingHandling ;
+    const orderTotal = subtotal + shippingHandling;
 
     return (
         <>

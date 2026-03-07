@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { ShoppingCart, User, Heart, Search } from "lucide-react";
-import axios from "axios";
+import api from "../../api/api";
 import './Navbar.css';
 import { useNavigate, Link } from 'react-router-dom';
 import { CartContext } from "../CartContext/CartContext";
@@ -16,7 +16,7 @@ function Navbar() {
 
     const { cart, wishlist, user, setUser, setCart, setWishlist } = useContext(CartContext);
 
-    const cartCount = cart.length;
+    const cartCount = cart?.length || 0;
     const wishlistCount = wishlist.length;
     const navigate = useNavigate();
 
@@ -24,7 +24,7 @@ function Navbar() {
     const isUser = user?.role === 'User';
 
     useEffect(() => {
-        axios.get(`${API_URL}/categories`)
+        api.get(`${API_URL}/categories`)
             .then(res => setCategories(res.data))
             .catch(err => console.error("Error fetching categories:", err));
     }, []);

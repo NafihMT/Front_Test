@@ -2,21 +2,23 @@ import React, { useEffect, useState } from "react";
 import StatCard from '../StatCard';
 import { IndianRupee } from "lucide-react";
 
+
+const API_BASE_URL = "http://localhost:5000/api";
+
 const RevenueCard = () => {
   const [revenue, setRevenue] = useState(0);
 
   useEffect(() => {
-    axios.get("http://localhost:5298/api/Order")
-      .then((res) => {
-        const orders = res.data.data || [];
+    const token = localStorage.getItem("token");
 
-        const total = orders
-          .filter((order) => order.status === "Delivered")
-          .reduce((sum, order) => sum + order.totalAmount, 0);
-
-        setRevenue(total);
-      })
-      .catch((err) => console.error("Error fetching orders:", err));
+    fetch(`${API_BASE_URL}/order/revenue`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+      .then(res => res.json())
+      .then(data => setRevenue(data.data || 0))
+      .catch(err => console.error("Error fetching revenue:", err));
   }, []);
 
   return (
