@@ -16,7 +16,7 @@ import Orders from './Components/Orders/Orders';
 import Order from './Components/Order/Order';
 import Wishlist from './Components/Wishlist/Wishlist';
 import Admin from './Components/Admin-Component/Admin';
-import Dashboard from './Components/Admin-Component/DashBoard/Dashboard';
+import Dashboard from './Components/Admin-Component/Dashboard/Dashboard';
 
 function AppRoutes() {
   const { user, userLoaded } = useContext(CartContext);

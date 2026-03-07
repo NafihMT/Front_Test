@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../api/api';
 import { toast } from 'react-toastify';
 import { CartContext } from '../CartContext/CartContext';
 import './Checkout.css';
@@ -35,7 +35,7 @@ function Checkout() {
                 }))
             };
 
-            await axios.post(
+            await api.post(
                 `${API_BASE_URL}/order`,
                 payload,
                 {

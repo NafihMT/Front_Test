@@ -16,7 +16,7 @@ function UserList({ users, loading, error, onEdit, onDelete }) {
                     </div>
                     <div className="user-role">{user.type}</div>
                     <div className="user-status">
-                        <span className={`status-badge status--${user.status.toLowerCase()}`}>
+                        <span className={`status-badge status--${user.status}`}>
                             {user.status}
                         </span>
                     </div>

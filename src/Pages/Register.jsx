@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Css/Register.css';
-import axios from "axios";
+import api from "../api/api";
 import { toast } from 'react-toastify';
 
 function Register() {
@@ -38,7 +38,7 @@ function Register() {
                 password: formData.password
             };
 
-            await axios.post(`${API_URL}register/registration`, payload);
+            await api.post(`${API_URL}register/registration`, payload);
             toast.success("Registration successful! Please log in.");
             navigate('/login');
         } catch (err) {

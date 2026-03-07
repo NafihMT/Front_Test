@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import api from '../../api/api';
 import { useNavigate } from 'react-router-dom';
 import { CartContext } from '../CartContext/CartContext';
 import NavBar from '../NavBar/Navbar';
@@ -23,7 +23,7 @@ function Wishlist() {
             return;
         }
 
-        axios.get(`${API_URL}/wishlist`, { headers })
+        api.get(`${API_URL}/wishlist`, { headers })
             .then(res => {
                 setWishlistItems(res.data.data || []);
                 setIsLoading(false);
@@ -36,7 +36,7 @@ function Wishlist() {
 
     const handleRemoveFromWishlist = async (id, silent = false) => {
         try {
-            await axios.delete(`${API_URL}/wishlist/remove/${id}`, { headers });
+            await api.delete(`${API_URL}/wishlist/remove/${id}`, { headers });
             const updatedList = wishlistItems.filter(item => item.id !== id);
             setWishlistItems(updatedList);
             setWishlist(updatedList); 
@@ -52,7 +52,7 @@ function Wishlist() {
 
     const handleAddToCart = async (item) => {
         try {
-            const res = await axios.post(
+            const res = await api.post(
                 `${API_URL}/cart/${item.productId}`, 
                 { quantity: 1 }, 
                 { headers }

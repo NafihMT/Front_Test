@@ -2,11 +2,11 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import './index.css'
-import axios from 'axios'
+import api from './api/api.js'
 import App from './App.jsx'
 
 
-axios.interceptors.request.use(
+api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("token");
         if (token) {

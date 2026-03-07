@@ -2,71 +2,85 @@
 .sidebar-main-container {
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Pushes logout button to the bottom */
+    justify-content: space-between;
+    /* pushes logout to bottom */
+
     background-color: #0f172a;
     width: 250px;
-    height: 118vh; /* Corrected: Full screen height */
-    padding: 20px;
+    height: 100vh;
+    position: fixed;
+    /* full screen height */
+    padding: 24px 20px;
     box-sizing: border-box;
 }
 
-.admin-panel {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #f1f5f9;
-    margin-bottom: 2.5rem;
+/* --- Top Section (Logo + Menu) --- */
+.sidebar-top {
+    display: flex;
+    flex-direction: column;
 }
 
+/* --- Title --- */
+.admin-panel {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #f1f5f9;
+    margin-bottom: 40px;
+    /* spacing below title */
+}
 
+/* --- Menu --- */
 .menu {
     list-style: none;
     padding: 0;
     margin: 0;
+
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 14px;
+    /* ✅ small gap between Dashboard, Products, etc */
 }
 
+/* --- Menu Item --- */
 .menu-item {
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
+    padding: 12px 16px;
+    border-radius: 10px;
     color: #cbd5e1;
     cursor: pointer;
     font-size: 1rem;
     font-weight: 500;
-    transition: background-color 0.2s, color 0.2s;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .menu-item:hover {
     background-color: #1e293b;
-    color: #fff;
+    color: #ffffff;
 }
 
 .menu-item.active {
     background-color: #2563eb;
-    color: #fff;
+    color: #ffffff;
 }
 
 /* --- Logout Button --- */
 .logout-btn {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    position: relative;
-    bottom: 40%;
-    
+    gap: 10px;
+
+    padding: 12px 16px;
+    border-radius: 10px;
+
     width: 100%;
-    background: none;
+    background-color: #000000;
     border: none;
     cursor: pointer;
 
     font-size: 1rem;
     font-family: inherit;
     color: #cbd5e1;
-    background-color: #000000;
-    transition: background-color 0.2s, color 0.2s;
+
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .logout-btn:hover {

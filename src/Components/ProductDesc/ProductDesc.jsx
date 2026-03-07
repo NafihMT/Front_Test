@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../api/api';
 import "./ProductDesc.css";
 import { Heart, ShoppingCart } from 'lucide-react';
 import NavBar from '../NavBar/Navbar';
@@ -24,7 +24,7 @@ function ProductDesc() {
     };
 
     useEffect(() => {
-        axios.get(`${API_BASE_URL}/product/${id}`)
+        api.get(`${API_BASE_URL}/product/${id}`)
             .then(res => {
                 setProduct(res.data.data || res.data);
             })
@@ -59,12 +59,12 @@ function ProductDesc() {
         const existingItem = wishlist.find(item => item.productId === product.id);
         try {
             if (existingItem) {
-                await axios.delete(`${API_BASE_URL}/wishlist/remove/${existingItem.id}`, getAuthHeaders());
+                await api.delete(`${API_BASE_URL}/wishlist/remove/${existingItem.id}`, getAuthHeaders());
                 setWishlist(prev => prev.filter(item => item.id !== existingItem.id));
                 toast.info("Removed from wishlist");
             } else {
                 // Fix: Check your Wishlist endpoint. If it's /api/wishlist/{id}
-                const response = await axios.post(`${API_BASE_URL}/wishlist/${product.id}`, {}, getAuthHeaders());
+                const response = await api.post(`${API_BASE_URL}/wishlist/${product.id}`, {}, getAuthHeaders());
                 setWishlist(prev => [...prev, response.data.data]);
                 toast.success("Added to wishlist");
             }
@@ -82,14 +82,14 @@ function ProductDesc() {
         try {
             // FIX: Remove '/add' from the URL. 
             // The backend expects /api/cart/{productId}
-            await axios.post(
+            await api.post(
                 `${API_BASE_URL}/cart/${product.id}`,
                 { quantity: Number(quantity) },
                 getAuthHeaders()
             );
 
             // Sync global cart state to update Navbar count
-            const resCart = await axios.get(`${API_BASE_URL}/cart`, getAuthHeaders());
+            const resCart = await api.get(`${API_BASE_URL}/cart`, getAuthHeaders());
             setCart(resCart.data.data || []);
 
             toast.success(`${product.name} added to cart!`);

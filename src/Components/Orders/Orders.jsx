@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import api from '../../api/api';
 import { CartContext } from '../CartContext/CartContext';
 import './Orders.css';
 import NavBar from '../NavBar/Navbar';
@@ -17,7 +17,7 @@ function Orders() {
             try {
                 const token = localStorage.getItem("token");
 
-                const response = await axios.get(
+                const response = await api.get(
                     `${API_BASE_URL}/order/user`,
                     {
                         headers: {

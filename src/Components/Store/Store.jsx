@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import NavBar from '../NavBar/Navbar';
-import axios from "axios";
+import api from "../../api/api";
 import { CartContext } from "../CartContext/CartContext";
 import "./Store.css";
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -41,7 +41,7 @@ function Store() {
             fetchUrl = `${API_BASE_URL}/product/category/${encodeURIComponent(categoryName)}`;
         }
 
-        axios.get(fetchUrl)
+        api.get(fetchUrl)
             .then(res => {
                 // Ensure we handle both direct arrays and ApiResponse wrapped data
                 const data = res.data.data || res.data;
@@ -53,7 +53,7 @@ function Store() {
     // 2. Fetch Wishlist
     useEffect(() => {
         if (user) {
-            axios.get(`${API_BASE_URL}/wishlist`, getAuthHeaders())
+            api.get(`${API_BASE_URL}/wishlist`, getAuthHeaders())
                 .then(res => setWishlist(res.data.data || []))
                 .catch(err => console.error("Error fetching wishlist:", err));
         }
@@ -70,11 +70,11 @@ function Store() {
 
         try {
             if (existingItem) {
-                await axios.delete(`${API_BASE_URL}/wishlist/remove/${existingItem.id}`, getAuthHeaders());
+                await api.delete(`${API_BASE_URL}/wishlist/remove/${existingItem.id}`, getAuthHeaders());
                 setWishlist(prev => prev.filter(item => item.id !== existingItem.id));
                 toast.info("Removed from wishlist");
             } else {
-                const response = await axios.post(`${API_BASE_URL}/wishlist/${product.id}`, {}, getAuthHeaders());
+                const response = await api.post(`${API_BASE_URL}/wishlist/${product.id}`, {}, getAuthHeaders());
                 // Sync with backend response data
                 setWishlist(prev => [...prev, response.data.data]);
                 toast.success("Added to wishlist");
@@ -90,8 +90,8 @@ function Store() {
             return;
         }
         try {
-            await axios.post(`${API_BASE_URL}/cart/${product.id}`, { quantity: 1 }, getAuthHeaders());
-            const res = await axios.get(`${API_BASE_URL}/cart`, getAuthHeaders());
+            await api.post(`${API_BASE_URL}/cart/${product.id}`, { quantity: 1 }, getAuthHeaders());
+            const res = await api.get(`${API_BASE_URL}/cart`, getAuthHeaders());
             setCart(res.data.data);
             toast.success(`${product.name} added to cart!`);
         } catch (error) {
