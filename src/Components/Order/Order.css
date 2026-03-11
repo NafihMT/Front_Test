@@ -2,11 +2,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    /* If you have a 100px fixed navbar, use calc to center perfectly in the remaining space */
+    min-height: calc(100vh - 100px); 
+    margin-top: 100px; /* Push container below navbar instead of padding */
     background-color: #f8f9fa;
     font-family: sans-serif;
-    padding: 40px 20px;
-    padding-top: 100px;
+    padding: 20px; /* Simplified padding */
     box-sizing: border-box;
 }
 
@@ -28,7 +29,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 0 auto 30px auto;
+    margin: 0 auto 30px auto; /* Perfectly centers the circle horizontally */
 }
 
 .confirmation-title {
@@ -41,12 +42,13 @@
 .confirmation-message {
     font-size: 16px;
     color: #888;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
 }
 
 .confirmation-actions {
     display: flex;
     justify-content: center;
+    align-items: center; /* Added to keep buttons vertically aligned if they wrap */
     gap: 15px;
     flex-wrap: wrap;
 }
@@ -62,6 +64,10 @@
     transition: all 0.2s ease-in-out;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+}
+.continue-shopping-btn{
+    position: relative;
+    top: 0px;
 }
 
 .view-order-btn {
@@ -82,3 +88,4 @@
 .continue-shopping-btn:hover {
     background-color: #a89d90;
 }
+

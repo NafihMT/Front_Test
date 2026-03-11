@@ -107,6 +107,21 @@ function EditUser({ user, onSave, onClose }) {
                             <option value="Admin">Admin</option>
                         </select>
                     </div>
+                    {/* Account Status */}
+                    <div className="form-group">
+                        <label>Account Status</label>
+                        <select
+                            name="isBlocked"
+                            value={formData.isBlocked}
+                            onChange={(e) => setFormData(prev => ({
+                                ...prev,
+                                isBlocked: e.target.value === "true"
+                            }))}
+                        >
+                            <option value="false">Active</option>
+                            <option value="true">Blocked</option>
+                        </select>
+                    </div>
 
                     <div className="modal-actions">
                         <button

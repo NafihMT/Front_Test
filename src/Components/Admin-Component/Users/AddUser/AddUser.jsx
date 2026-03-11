@@ -4,7 +4,7 @@ function AddUser({ onClose, onSave }) {
 
     const [formData, setFormData] = useState({
         name: "",
-        userName: "",
+        username: "",
         email: "",
         password: "",
         phoneNo: "",
@@ -50,8 +50,8 @@ function AddUser({ onClose, onSave }) {
                         <label>Username</label>
                         <input
                             type="text"
-                            name="userName"
-                            value={formData.userName}
+                            name="username"
+                            value={formData.username}
                             onChange={handleChange}
                             required
                         />

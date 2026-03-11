@@ -25,32 +25,35 @@ function Cart() {
                     const data = res.data.data || res.data;
                     setCart(data);
                 })
-
                 .catch(() => toast.error("Failed to load cart items."));
         }
     }, [user]);
 
-    const handleUpdateQuantity = async (item, newQuantity) => {
-        if (newQuantity < 1 || newQuantity > MAX_QUANTITY) return;
-
-        const originalCart = [...cart];
-        setCart(prev => prev.map(i =>
-            i.id === item.id ? { ...i, quantity: newQuantity } : i
-        ));
-
+    // Internal logic for API and State update
+    const updateQuantity = async (itemId, newQuantity) => {
         try {
-            const res = await api.put(`${API_URL}/update/${item.id}`,
+            await api.put(`${API_URL}/update/${itemId}`,
                 { quantity: newQuantity },
                 getAuthHeaders()
             );
 
-            if (res.data?.data) {
-                setCart(prev => prev.map(i => i.id === item.id ? res.data.data : i));
-            }
+            setCart(prevCart => prevCart.map(item =>
+                item.id === itemId
+                    ? { ...item, quantity: newQuantity }
+                    : item
+            ));
         } catch (error) {
-            setCart(originalCart);
-            toast.error("Failed to update server.");
+            toast.error("Failed to update quantity");
         }
+    };
+
+    const handleUpdateQuantity = (item, newQuantity) => {
+        if (newQuantity < 1) return;
+        if (newQuantity > MAX_QUANTITY) {
+            toast.warning(`Maximum limit is ${MAX_QUANTITY}`);
+            return;
+        }
+        updateQuantity(item.id, newQuantity);
     };
 
     const handleRemoveItem = async (itemId) => {
@@ -64,7 +67,6 @@ function Cart() {
     };
 
     const subtotal = cart.reduce((total, item) => {
-        // Safety check: Ensure item and price exist before multiplying
         if (!item || typeof item.price === 'undefined') return total;
         return total + (item.price * item.quantity);
     }, 0);

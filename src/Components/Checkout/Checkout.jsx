@@ -7,6 +7,7 @@ import './Checkout.css';
 import NavBar from '../NavBar/Navbar';
 
 const API_BASE_URL = "http://localhost:5000/api";
+
 function Checkout() {
     const { cart, setCart, user } = useContext(CartContext);
     const navigate = useNavigate();
@@ -23,6 +24,11 @@ function Checkout() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (cart.length === 0) {
+            toast.error("Your cart is empty!");
+            return;
+        }
+        
         setIsProcessing(true);
 
         try {
@@ -32,25 +38,28 @@ function Checkout() {
                 items: cart.map(item => ({
                     productId: item.productId,
                     quantity: item.quantity
-                }))
+                })),
+                shippingAddress: {
+                    f_name: `${shippingInfo.firstName} ${shippingInfo.lastName}`.trim(),
+                    address: shippingInfo.address,
+                    city: shippingInfo.city,
+                    zipCode: shippingInfo.zipCode
+                }
             };
 
-            await api.post(
-                `${API_BASE_URL}/order`,
-                payload,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
+            const response = await api.post(`${API_BASE_URL}/order`, payload, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
 
-            setCart([]);
-            toast.success("Order placed successfully!");
-            navigate('/order');
+            if (response.status === 200 || response.status === 201) {
+                setCart([]); 
+
+                toast.success("Order placed successfully!");
+                navigate('/order');
+            }
 
         } catch (error) {
-            console.error(error.response?.data);
+            console.error("Checkout Error:", error.response?.data);
             toast.error(error.response?.data?.message || "Failed to place order.");
         } finally {
             setIsProcessing(false);
@@ -74,17 +83,35 @@ function Checkout() {
                         <form onSubmit={handleSubmit} className="shipping-form">
                             <h3>Address</h3>
                             <div className="form-row">
-                                <div className="form-group"><label>First Name <span>required</span></label><input type="text" name="firstName" onChange={handleInputChange} required /></div>
-                                <div className="form-group"><label>Last Name <span>required</span></label><input type="text" name="lastName" onChange={handleInputChange} required /></div>
+                                <div className="form-group">
+                                    <label>First Name <span>required</span></label>
+                                    <input type="text" name="firstName" value={shippingInfo.firstName} onChange={handleInputChange} required />
+                                </div>
+                                <div className="form-group">
+                                    <label>Last Name <span>required</span></label>
+                                    <input type="text" name="lastName" value={shippingInfo.lastName} onChange={handleInputChange} required />
+                                </div>
                             </div>
-                            <div className="form-group"><label>Street Address <span>required</span></label><input type="text" name="address" onChange={handleInputChange} required /></div>
+                            <div className="form-group">
+                                <label>Street Address <span>required</span></label>
+                                <input type="text" name="address" value={shippingInfo.address} onChange={handleInputChange} required />
+                            </div>
                             <div className="form-row">
-                                <div className="form-group"><label>Zip Code <span>required</span></label><input type="text" name="zipCode" onChange={handleInputChange} required /></div>
-                                <div className="form-group"><label>City <span>required</span></label><input type="text" name="city" onChange={handleInputChange} required /></div>
+                                <div className="form-group">
+                                    <label>Zip Code <span>required</span></label>
+                                    <input type="text" name="zipCode" value={shippingInfo.zipCode} onChange={handleInputChange} required />
+                                </div>
+                                <div className="form-group">
+                                    <label>City <span>required</span></label>
+                                    <input type="text" name="city" value={shippingInfo.city} onChange={handleInputChange} required />
+                                </div>
                             </div>
-                            <div className="form-group"><label>Phone Number <span>required</span></label><input type="tel" name="phone" onChange={handleInputChange} required /></div>
+                            <div className="form-group">
+                                <label>Phone Number <span>required</span></label>
+                                <input type="tel" name="phone" value={shippingInfo.phone} onChange={handleInputChange} required />
+                            </div>
 
-                            <button type="submit" className="continue-btn" disabled={isProcessing}>
+                            <button type="submit" className="continue-btn" disabled={isProcessing || cart.length === 0}>
                                 {isProcessing ? 'Processing...' : 'Confirm Order'}
                             </button>
                         </form>
@@ -94,7 +121,7 @@ function Checkout() {
                         <div className="order-summary">
                             <div className="summary-header">
                                 <h3>Order Summary</h3>
-                                <button onClick={() => navigate('/cart')} className="edit-cart-btn">Edit cart</button>
+                                <button onClick={() => navigate('/cart')} className="edit-cart-btn" type="button">Edit cart</button>
                             </div>
                             <div className="summary-line"><span>Merchandise:</span><span>₹{subtotal.toFixed(2)}</span></div>
                             <div className="summary-line"><span>Shipping & Handling:</span><span>₹{shippingHandling.toFixed(2)}</span></div>

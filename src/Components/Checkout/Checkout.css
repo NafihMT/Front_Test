@@ -17,7 +17,7 @@
 .checkout-sidebar {
     flex: 1;
     max-width: 350px;
-    margin-top: 50px;
+    /* Removed margin-top: 50px to align tops */
 }
 
 .checkout-logo {
@@ -122,20 +122,30 @@
     border: 1px solid #e1e1e1;
     border-radius: 5px;
 }
-.order-summary h3 {
-    margin-top: 0;
-    font-size: 20px;
-    display: inline-block;
+
+/* NEW: Flexbox layout for the header */
+.summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
 }
+
+.order-summary h3 {
+    margin: 0;
+    font-size: 20px;
+}
+
 .edit-cart-btn {
-    float: right;
     background: none;
     border: none;
     color: #555;
     text-decoration: underline;
     cursor: pointer;
     font-size: 14px;
+    padding: 0;
 }
+
 .summary-line {
     display: flex;
     justify-content: space-between;

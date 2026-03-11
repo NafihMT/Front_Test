@@ -29,8 +29,6 @@ function Orders() {
                 throw new Error("Failed to fetch orders");
 
             const data = await response.json();
-
-            // if ApiResponse wrapper
             setOrders(data.data ?? data ?? []);
 
         } catch (err) {
@@ -49,8 +47,9 @@ function Orders() {
         setCurrentPage(1);
     }, [searchTerm]);
 
+    // FIX: Filter by 'id', not 'orderNumber'
     const filteredOrders = orders.filter(order =>
-        order.orderNumber?.toLowerCase().includes(searchTerm.toLowerCase())
+        order.id?.toString().includes(searchTerm)
     );
 
     const indexOfLastOrder = currentPage * ordersPerPage;
@@ -59,16 +58,52 @@ function Orders() {
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+    // NEW: Handle Status Updates
+    const handleStatusChange = async (orderId, newStatusValue, newStatusText) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`${API_BASE_URL}/order/${orderId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                // Send integer value of enum to backend
+                body: JSON.stringify({ status: parseInt(newStatusValue) })
+            });
+
+            if (!response.ok) throw new Error("Failed to update status");
+
+            // Update UI state locally
+            setOrders(prevOrders => prevOrders.map(order =>
+                order.id === orderId ? { ...order, status: newStatusText } : order
+            ));
+
+        } catch (err) {
+            console.error(err);
+            alert("Error updating order status");
+        }
+    };
+
     return (
         <div className="orders-view">
-
             <div className="orders-header">
                 <h2 className='products-title'>Order Management</h2>
-                <div className="search-container">
+                {/* <div className="search-container">
                     <Search size={18} />
                     <input
                         type="text"
-                        placeholder="Search by order number..."
+                        placeholder="Search by order ID..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div> */}
+                <div className="search-container">
+                    <Search size={20} className="search-icon" />
+                    <input
+                        type="text"
+                        className="search-input"
+                        placeholder="Search by order ID..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -80,6 +115,7 @@ function Orders() {
                     orders={currentOrders}
                     loading={loading}
                     error={error}
+                    onStatusChange={handleStatusChange}
                 />
             </div>
 

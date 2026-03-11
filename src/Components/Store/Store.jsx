@@ -85,19 +85,38 @@ function Store() {
     };
 
     const addToCart = async (product) => {
-        if (!user) {
-            toast.error("Please login to add items to cart!");
-            return;
+    if (!user) {
+        toast.error("Please login to add items to cart!");
+        return;
+    }
+    
+    // Optimistic UI Update: Check if item already exists in local cart
+    const existingCartItem = cart.find(item => item.productId === product.id);
+
+    try {
+        await api.post(`${API_BASE_URL}/cart/${product.id}`, { quantity: 1 }, getAuthHeaders());
+        
+        // Update local context immediately without waiting for a second network request
+        if (existingCartItem) {
+            setCart(prevCart => prevCart.map(item => 
+                item.productId === product.id 
+                ? { ...item, quantity: item.quantity + 1 } 
+                : item
+            ));
+        } else {
+            setCart(prevCart => [...prevCart, { 
+                productId: product.id, 
+                quantity: 1, 
+                price: product.price,
+                name: product.name 
+            }]);
         }
-        try {
-            await api.post(`${API_BASE_URL}/cart/${product.id}`, { quantity: 1 }, getAuthHeaders());
-            const res = await api.get(`${API_BASE_URL}/cart`, getAuthHeaders());
-            setCart(res.data.data);
-            toast.success(`${product.name} added to cart!`);
-        } catch (error) {
-            toast.error(error.response?.data?.message || "Error adding to cart");
-        }
-    };
+        
+        toast.success(`${product.name} added to cart!`);
+    } catch (error) {
+        toast.error(error.response?.data?.message || "Error adding to cart");
+    }
+};
 
     const getSortedProducts = () => {
         let filtered = [...products];

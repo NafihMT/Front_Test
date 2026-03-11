@@ -19,7 +19,7 @@ function Dashboard() {
                 <ProductCountCard />
 
                 <RevenueCountCard />
-                <RevenueChart />
+                {/* <RevenueChart /> */}
 
             </div>
 
