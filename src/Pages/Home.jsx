@@ -42,8 +42,12 @@ function Home() {
             position: "relative"
           }}>
             <img
-              onClick={() => navigate("/products/11")}
-              src="https://vegaauto.com/wp-content/uploads/2024/07/Captain-America-2-1024x1024.png"
+            className='Image'
+              // onClick={() => navigate("/products/11")}
+              onClick={() => navigate("/store")}
+
+              // src="https://vegaauto.com/wp-content/uploads/2024/07/Captain-America-2-1024x1024.png"
+              src="src\Bg\close-up-motorcycle-helmet-removebg-preview.png"
               alt="Helmet"
               style={{
                 width: "340px",

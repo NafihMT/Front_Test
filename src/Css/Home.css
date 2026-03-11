@@ -8,3 +8,9 @@
     position: relative;
     /* bottom: 50px; */
 }
+
+.Image{
+    position: relative;
+    right: 60px;
+    scale: 1.3;
+}

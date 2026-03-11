@@ -114,9 +114,9 @@ function Navbar() {
                 <div className="profile-container" onMouseEnter={() => setProfileOpen(true)} onClick={() => setProfileOpen(false)}>
                     <div className="profile-trigger">
                         <User className="icon" />
-                        <span className="profile-greeting">
-                            {user ? `Hi, ${user.username}` : 'Hi, Guest'}
-                        </span>
+                        {/* <span className="profile-greeting">
+                            <span>Hi, {user?.firstName || user?.username || "Guest"}</span>
+                        </span> */}
                     </div>
                     {profileOpen && (
                         <ul className='profile-menu'>
